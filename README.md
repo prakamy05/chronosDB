@@ -1,45 +1,43 @@
 # ChronosDB
 
-> **A transactional relational database management system (RDBMS) built from scratch in C++17.**
+> **A transactional, ACID-compliant relational database management system (RDBMS) built from scratch in C++17.**
 >
-> ChronosDB implements a modular database engine architecture featuring **Slotted-Page Storage**, **LRU Buffer Pool Management**, **Multi-Version Concurrency Control (MVCC)**, and a **Volcano (Iterator Model) Query Execution Engine**. The system also provides client accessibility through a **multi-threaded TCP server**, an **interactive CLI**, and an **HTTP monitoring dashboard**.
+> ChronosDB implements a modular database engine architecture featuring **Slotted-Page Storage**, **LRU Buffer Pool Management**, **Multi-Version Concurrency Control (MVCC)**, and a **Volcano (Iterator Model) Query Execution Engine**. The system exposes three interfaces: an **interactive CLI**, a **multi-threaded TCP server**, and an **HTTP monitoring dashboard**.
 
 ---
 
 ## Table of Contents
 
-- [Project Overview](#project-overview)
-- [Installation](#installation)
-- [Running ChronosDB](#running-chronosdb)
-- [Ways to Use ChronosDB](#ways-to-use-chronosdb)
-- [Supported SQL Commands](#supported-sql-commands)
-- [Features](#features)
-- [Architecture Overview](#architecture-overview)
-- [Project Structure](#project-structure)
-- [Architecture Details](#architecture-details)
-- [Technologies Used](#technologies-used)
-- [Current Project Scope](#current-project-scope)
-- [Future Scope](#future-scope)
+- Project Overview
+- Installation
+- Running ChronosDB
+- Ways to Use ChronosDB
+- Supported SQL Commands
+- Features
+- Architecture Overview
+- Project Structure
+- Architecture Details
+- Technologies Used
+- Current Project Scope
+- Future Scope
 
 ---
 
 # Project Overview
 
-ChronosDB is an educational relational database engine developed to explore the internal architecture of modern database management systems.
+ChronosDB is an educational relational database engine designed to explore the internals of modern database systems. It combines SQL compilation, query execution, concurrency control, storage management, networking, and monitoring into a layered architecture.
 
-The project combines multiple core database subsystems into a layered architecture, including:
+Core subsystems include:
 
 - SQL compilation
-- Transaction management
-- Concurrency control
-- Storage management
-- Buffer management
-- Query execution
-- Database virtualization
-- Networking
-- Performance monitoring
-
-The system stores data using a **slotted-page storage engine**, executes queries through a **Volcano iterator execution pipeline**, manages concurrent transactions using **MVCC and Strict Two-Phase Locking (SS2PL)**, and caches disk pages using a fixed-size **LRU Buffer Pool**.
+- Volcano query execution
+- MVCC + Strict Two-Phase Locking (SS2PL)
+- Slotted-page storage
+- LRU buffer pool
+- Write-Ahead Logging (WAL)
+- Multi-database virtualization
+- TCP networking
+- HTTP monitoring
 
 ---
 
@@ -47,11 +45,11 @@ The system stores data using a **slotted-page storage engine**, executes queries
 
 ## Requirements
 
-- C++17 compatible compiler
-- POSIX threads (`pthread`)
-- Make
+- **g++** (or another C++17-compatible compiler)
+- **GNU Make**
+- **POSIX Threads (`pthread`)**
 
----
+The supplied Makefile is configured for **g++** with **C++17** and **-pthread**.
 
 ## Build
 
@@ -59,15 +57,11 @@ The system stores data using a **slotted-page storage engine**, executes queries
 make
 ```
 
----
-
 ## Run
 
 ```bash
-./minidb
+./chronosdb
 ```
-
----
 
 ## Clean
 
@@ -79,7 +73,7 @@ make clean
 
 # Running ChronosDB
 
-On startup, ChronosDB initializes:
+Starting the executable launches:
 
 - Interactive CLI
 - TCP Server (Port **5433**)
@@ -89,85 +83,44 @@ On startup, ChronosDB initializes:
 
 # Ways to Use ChronosDB
 
-## 1. Interactive CLI
+### Interactive CLI
 
-Run SQL statements directly inside the terminal.
+Run SQL commands directly from the terminal.
 
-Example:
+### TCP Server
 
-```sql
-CREATE DATABASE school;
-USE school;
+Connect remotely on **5433** and send SQL statements over TCP.
 
-CREATE TABLE students (
-    id INT,
-    name VARCHAR
-);
+### HTTP Dashboard
 
-INSERT INTO students VALUES (1, Alice);
+Open:
 
-SELECT * FROM students;
-```
-
----
-
-## 2. TCP Server
-
-ChronosDB starts a multi-threaded TCP server on:
-
-```
-Port 5433
-```
-
-Applications can send raw SQL query strings and receive tabular query results.
-
----
-
-## 3. HTTP Dashboard
-
-The integrated dashboard runs on:
-
-```
+```text
 http://localhost:8080
 ```
 
-It provides:
-
-- Engine telemetry
-- Performance statistics
-- Buffer cache statistics
-- Execution metrics
-- Database schema information
+to inspect telemetry, cache statistics and execution metrics.
 
 ---
 
 # Supported SQL Commands
 
-## Database Commands
+## Database
 
 ```sql
-CREATE DATABASE <name>;
+CREATE DATABASE school;
+USE school;
 ```
 
-Creates a new isolated database.
-
----
+## Tables
 
 ```sql
-USE <name>;
-```
-
-Switches the active database.
-
----
-
-## Table Commands
-
-```sql
-CREATE TABLE <name>(
-    column type,
-    ...
+CREATE TABLE students(
+    id INT,
+    name VARCHAR
 );
+
+DROP TABLE students;
 ```
 
 Supported types:
@@ -175,183 +128,124 @@ Supported types:
 - INT
 - VARCHAR
 
----
-
-```sql
-DROP TABLE <name>;
-```
-
-Removes a table and associated secondary indexes.
-
----
-
 ## Data Manipulation
 
 ```sql
-INSERT INTO table VALUES (...);
+INSERT INTO students VALUES (1, Alice);
+
+DELETE FROM students
+WHERE id=1;
 ```
 
-Performs:
+## Queries
 
-- Type validation
-- Tuple serialization
-- Secondary index updates
-- MVCC metadata creation
+Supports:
 
----
-
-```sql
-DELETE FROM table
-WHERE column=value;
-```
-
-Performs:
-
-- Exclusive locking
-- MVCC delete marking
-- Secondary index removal
-
----
-
-## Query Processing
-
-```sql
-SELECT ...
-FROM ...
-```
-
-Supported clauses include:
-
+- SELECT
 - WHERE
 - JOIN
 - GROUP BY
 - ORDER BY
 
-The execution engine dynamically selects:
-
-- Sequential Scan
-- Index Scan
-
-depending on index availability.
+Automatically chooses sequential or index scans depending on index availability.
 
 ---
 
 # Features
 
-### Storage Engine
+## Storage
 
-- Slotted-page storage layout
-- Variable-length row storage
-- Binary page serialization
-- Fixed page size of **4096 bytes**
+- Slotted-page storage
+- Variable-length tuples
+- 4096-byte pages
+- Binary serialization
 
-### Query Processing
+## Query Engine
 
 - SQL Lexer
 - SQL Parser
 - AST generation
-- Volcano iterator execution engine
+- Volcano iterator execution
 - Sequential scans
 - Index scans
 - Projection
 - Filtering
 - Sorting
 - Hash aggregation
-- Nested loop joins
+- Nested-loop joins
 
-### Transaction Processing
+## Transactions
 
-- Multi-Version Concurrency Control (MVCC)
+- MVCC
 - Snapshot Isolation
-- Strict Two-Phase Locking (SS2PL)
-- Transaction lifecycle management
-- Write-Ahead Logging (WAL)
+- Strict 2PL
+- WAL
 
-### Buffer Management
+## Buffer Pool
 
-- LRU Buffer Pool
-- Fixed-size cache (**10 page frames**)
+- 10-frame LRU cache
 - Dirty page flushing
 - Page pinning
-- Disk abstraction
 
-### Storage
+## Networking
 
-- Binary database files
-- Append-only WAL files
-- Slotted page management
-- MVCC tuple version metadata
-
-### Database Management
-
-- Multi-database support
-- Database virtualization
-- Catalog management
-- Schema serialization
-
-### Networking
-
-- Multi-threaded TCP Server
-- Interactive CLI
-- HTTP Monitoring Dashboard
-
-### Monitoring
-
-The HTTP dashboard tracks:
-
-- Total requests
-- Network payload sizes
-- Execution faults
-- Buffer cache hits
-- Rolling execution latency
+- CLI
+- TCP Server
+- HTTP Dashboard
 
 ---
 
 # Architecture Overview
 
+```text
+Client
+   │
+   ├── CLI
+   ├── TCP
+   └── HTTP Dashboard
+          │
+          ▼
+ DatabaseClusterManager
+          │
+       DBEngine
+          │
+  Lexer → Parser → AST
+          │
+          ▼
+ Volcano Execution Engine
+          │
+          ▼
+ MVCC + Lock Manager
+          │
+          ▼
+ Buffer Pool (LRU)
+          │
+          ▼
+ Disk Manager + WAL
 ```
-                     Client Applications
-              ┌──────────────┬──────────────┐
-              │              │              │
-              ▼              ▼              ▼
-          CLI Shell      TCP Server    HTTP Dashboard
-                 \          |          /
-                  \         |         /
-                   ▼        ▼        ▼
-              DatabaseClusterManager
-                        │
-                        ▼
-                     DBEngine
-                        │
-                        ▼
-          ┌───────────────────────────┐
-          │       Compiler Layer      │
-          │ Lexer → Parser → AST      │
-          └───────────────────────────┘
-                        │
-                        ▼
-          ┌───────────────────────────┐
-          │     Execution Engine      │
-          │ Volcano Iterator Model    │
-          └───────────────────────────┘
-                        │
-                        ▼
-          ┌───────────────────────────┐
-          │   Concurrency Layer       │
-          │ MVCC + Lock Manager       │
-          └───────────────────────────┘
-                        │
-                        ▼
-          ┌───────────────────────────┐
-          │ Buffer Pool Manager (LRU) │
-          └───────────────────────────┘
-                        │
-                        ▼
-          ┌───────────────────────────┐
-          │     Persistent Storage    │
-          │ Disk Manager + WAL        │
-          └───────────────────────────┘
+
+### Volcano Execution Pipeline
+
+```text
+SQL
+ │
+ ▼
+Lexer
+ │
+ ▼
+Parser
+ │
+ ▼
+AST
+ │
+ ▼
+Executor::Init()
+ │
+ ▼
+Next() → Next() → Next() → EOF
 ```
+
+Each executor behaves as an iterator that produces one tuple at a time, enabling composable execution pipelines.
 
 ---
 
@@ -359,154 +253,28 @@ The HTTP dashboard tracks:
 
 ```text
 ChronosDB
-│
 ├── Makefile
 ├── main.cpp
-│
-└── src
-    │
-    ├── common
-    │   └── types.h
-    │
-    ├── compiler
-    │   ├── ast.h
-    │   ├── lexer.h
-    │   └── parser.h
-    │
-    ├── concurrency
-    │   ├── lock_manager.h
-    │   ├── lock_manager.cpp
-    │   ├── transaction.h
-    │   └── transaction_manager.h
-    │
-    ├── execution
-    │   ├── catalog.h
-    │   ├── executors.h
-    │   └── engine.h
-    │
-    ├── network
-    │   ├── tcp_server.h
-    │   └── http_dashboard.h
-    │
-    └── storage
-        ├── page.h
-        ├── disk_manager.h
-        ├── disk_manager.cpp
-        ├── buffer_pool_manager.h
-        ├── buffer_pool_manager.cpp
-        └── recovery.h
+└── src/
+    ├── common/
+    ├── compiler/
+    ├── concurrency/
+    ├── execution/
+    ├── network/
+    └── storage/
 ```
 
 ---
 
 # Architecture Details
 
-## Network Layer
-
-Provides client access through:
-
-- Interactive CLI
-- TCP Server
-- HTTP Dashboard
-
-Responsible for receiving SQL queries and forwarding them to the database engine.
-
----
-
-## Virtualization Layer
-
-Implemented by:
-
-- DatabaseClusterManager
-- DBEngine
-
-Responsibilities:
-
-- Database isolation
-- Active database selection
-- Catalog loading
-- Query routing
-
----
-
-## Compiler Layer
-
-### Lexer
-
-- Tokenizes SQL
-- Normalizes keywords
-
-### Parser
-
-Builds structured query metadata supporting:
-
-- projections
-- WHERE clauses
-- grouping
-- ordering
-- aggregations
-
-### AST
-
-Stores parsed SQL command structures.
-
----
-
-## Execution Layer
-
-Implements the Volcano iterator execution model.
-
-Operators include:
-
-- SeqScanExecutor
-- IndexScanExecutor
-- FilterExecutor
-- ProjectionExecutor
-- SortExecutor
-- HashAggregationExecutor
-- NestedLoopJoinExecutor
-
----
-
-## Concurrency Layer
-
-Provides:
-
-- MVCC Snapshot management
-- LockManager
-- Transaction lifecycle management
-- RID locking
-- Write-Ahead Log integration
-
----
-
-## Memory Layer
-
-Implemented using BufferPoolManager.
-
-Features:
-
-- 10 frame cache
-- LRU replacement
-- Dirty page flushing
-- Page pinning
-
----
-
-## Storage Layer
-
-Implemented using:
-
-- DiskManager
-- Page
-- Recovery
-
-Responsibilities include:
-
-- Binary page storage
-- Slotted-page layout
-- WAL management
-- ARIES recovery framework
+- **Network Layer** — CLI, TCP server and dashboard.
+- **Virtualization Layer** — DatabaseClusterManager and DBEngine manage catalogs and active databases.
+- **Compiler Layer** — SQL tokenization, parsing and AST generation.
+- **Execution Layer** — Volcano iterator model with scan, filter, projection, join, sort and aggregation executors.
+- **Concurrency Layer** — MVCC snapshots, lock management and transaction lifecycle.
+- **Memory Layer** — LRU buffer pool with dirty-page flushing and page pinning.
+- **Storage Layer** — Slotted pages, binary persistence and WAL infrastructure.
 
 ---
 
@@ -519,19 +287,20 @@ Responsibilities include:
 ## Database Concepts
 
 - Relational Database Systems
-- Slotted Page Storage
+- Slotted Pages
 - MVCC
 - Snapshot Isolation
-- Strict Two-Phase Locking
+- Strict 2PL
 - Volcano Iterator Model
 - Buffer Pool Management
 - LRU Cache
-- Write-Ahead Logging
-- ARIES Recovery Framework
+- Write-Ahead Logging (WAL)
+- ARIES recovery framework
 
 ## Systems
 
 - Multi-threading
+- POSIX Threads
 - TCP Networking
 - HTTP Server
 - Binary File Storage
@@ -540,69 +309,33 @@ Responsibilities include:
 
 # Current Project Scope
 
-ChronosDB currently implements:
+ChronosDB currently provides:
 
 - Transactional relational database engine
 - SQL compilation pipeline
 - Slotted-page storage
 - Binary persistence
 - Buffer pool management
-- MVCC concurrency control
-- Strict Two-Phase Locking
-- Volcano iterator query execution
-- Secondary index acceleration
-- Multi-database virtualization
-- TCP client server
+- MVCC concurrency
+- Volcano execution engine
+- Multi-database support
 - Interactive CLI
+- TCP server
 - HTTP monitoring dashboard
-- Performance telemetry
 
 ---
 
 # Future Scope
 
-The current codebase already provides the framework for ARIES recovery through `recovery.h`.
-
-Additional extensions can be built on top of the existing architecture, including:
-
-- Completing the ARIES crash recovery implementation
-- Expanding SQL language support
-- Additional query optimization strategies
+- Complete ARIES crash recovery
+- Cost-based query optimization
+- Additional SQL support
 - Additional executor implementations
-- More index structures
-- Extended monitoring and administrative capabilities
-
----
-
-# Technologies Used
-
-## Language
-
-- C++17
-
-## Database Concepts
-
-- Relational Database Systems
-- Slotted Page Storage
-- MVCC
-- Snapshot Isolation
-- Strict Two-Phase Locking
-- Volcano Iterator Model
-- Buffer Pool Management
-- LRU Cache
-- Write-Ahead Logging
-- ARIES Recovery Framework
-
-## Systems
-
-- Multi-threading
-- TCP Networking
-- HTTP Server
-- Binary File Storage
+- More index structures (e.g. B+ Trees)
+- Extended monitoring and administration
 
 ---
 
 # Keywords
 
-**Database Systems • RDBMS • Storage Engine • Database Engine • Systems Programming • C++17 • MVCC • Snapshot Isolation • SS2PL • Volcano Iterator Model • Query Processing • Query Execution Engine • Buffer Pool Manager • LRU Cache • Slotted Pages • Write-Ahead Logging • WAL • Binary Storage • Multi-threading • TCP Networking • HTTP Server • Backend Engineering • Operating Systems • Low-Level Systems • Software Architecture**
-```
+**Database Systems • RDBMS • C++17 • MVCC • Snapshot Isolation • SS2PL • Volcano Iterator Model • Slotted Pages • Buffer Pool • LRU • WAL • Query Processing • Systems Programming • TCP Networking • HTTP Dashboard**
