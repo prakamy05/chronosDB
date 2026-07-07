@@ -9,13 +9,13 @@
 ## Table of Contents
 
 - [Project Overview](#project-overview)
-- [Features](#features)
-- [Architecture Overview](#architecture-overview)
-- [Project Structure](#project-structure)
 - [Installation](#installation)
 - [Running ChronosDB](#running-chronosdb)
 - [Ways to Use ChronosDB](#ways-to-use-chronosdb)
 - [Supported SQL Commands](#supported-sql-commands)
+- [Features](#features)
+- [Architecture Overview](#architecture-overview)
+- [Project Structure](#project-structure)
 - [Architecture Details](#architecture-details)
 - [Technologies Used](#technologies-used)
 - [Current Project Scope](#current-project-scope)
@@ -40,169 +40,6 @@ The project combines multiple core database subsystems into a layered architectu
 - Performance monitoring
 
 The system stores data using a **slotted-page storage engine**, executes queries through a **Volcano iterator execution pipeline**, manages concurrent transactions using **MVCC and Strict Two-Phase Locking (SS2PL)**, and caches disk pages using a fixed-size **LRU Buffer Pool**.
-
----
-
-# Features
-
-### Storage Engine
-
-- Slotted-page storage layout
-- Variable-length row storage
-- Binary page serialization
-- Fixed page size of **4096 bytes**
-
-### Query Processing
-
-- SQL Lexer
-- SQL Parser
-- AST generation
-- Volcano iterator execution engine
-- Sequential scans
-- Index scans
-- Projection
-- Filtering
-- Sorting
-- Hash aggregation
-- Nested loop joins
-
-### Transaction Processing
-
-- Multi-Version Concurrency Control (MVCC)
-- Snapshot Isolation
-- Strict Two-Phase Locking (SS2PL)
-- Transaction lifecycle management
-- Write-Ahead Logging (WAL)
-
-### Buffer Management
-
-- LRU Buffer Pool
-- Fixed-size cache (**10 page frames**)
-- Dirty page flushing
-- Page pinning
-- Disk abstraction
-
-### Storage
-
-- Binary database files
-- Append-only WAL files
-- Slotted page management
-- MVCC tuple version metadata
-
-### Database Management
-
-- Multi-database support
-- Database virtualization
-- Catalog management
-- Schema serialization
-
-### Networking
-
-- Multi-threaded TCP Server
-- Interactive CLI
-- HTTP Monitoring Dashboard
-
-### Monitoring
-
-The HTTP dashboard tracks:
-
-- Total requests
-- Network payload sizes
-- Execution faults
-- Buffer cache hits
-- Rolling execution latency
-
----
-
-# Architecture Overview
-
-```
-                     Client Applications
-              ┌──────────────┬──────────────┐
-              │              │              │
-              ▼              ▼              ▼
-          CLI Shell      TCP Server    HTTP Dashboard
-                 \          |          /
-                  \         |         /
-                   ▼        ▼        ▼
-              DatabaseClusterManager
-                        │
-                        ▼
-                     DBEngine
-                        │
-                        ▼
-          ┌───────────────────────────┐
-          │       Compiler Layer      │
-          │ Lexer → Parser → AST      │
-          └───────────────────────────┘
-                        │
-                        ▼
-          ┌───────────────────────────┐
-          │     Execution Engine      │
-          │ Volcano Iterator Model    │
-          └───────────────────────────┘
-                        │
-                        ▼
-          ┌───────────────────────────┐
-          │   Concurrency Layer       │
-          │ MVCC + Lock Manager       │
-          └───────────────────────────┘
-                        │
-                        ▼
-          ┌───────────────────────────┐
-          │ Buffer Pool Manager (LRU) │
-          └───────────────────────────┘
-                        │
-                        ▼
-          ┌───────────────────────────┐
-          │     Persistent Storage    │
-          │ Disk Manager + WAL        │
-          └───────────────────────────┘
-```
-
----
-
-# Project Structure
-
-```text
-ChronosDB
-│
-├── Makefile
-├── main.cpp
-│
-└── src
-    │
-    ├── common
-    │   └── types.h
-    │
-    ├── compiler
-    │   ├── ast.h
-    │   ├── lexer.h
-    │   └── parser.h
-    │
-    ├── concurrency
-    │   ├── lock_manager.h
-    │   ├── lock_manager.cpp
-    │   ├── transaction.h
-    │   └── transaction_manager.h
-    │
-    ├── execution
-    │   ├── catalog.h
-    │   ├── executors.h
-    │   └── engine.h
-    │
-    ├── network
-    │   ├── tcp_server.h
-    │   └── http_dashboard.h
-    │
-    └── storage
-        ├── page.h
-        ├── disk_manager.h
-        ├── disk_manager.cpp
-        ├── buffer_pool_manager.h
-        ├── buffer_pool_manager.cpp
-        └── recovery.h
-```
 
 ---
 
@@ -399,6 +236,169 @@ depending on index availability.
 
 ---
 
+# Features
+
+### Storage Engine
+
+- Slotted-page storage layout
+- Variable-length row storage
+- Binary page serialization
+- Fixed page size of **4096 bytes**
+
+### Query Processing
+
+- SQL Lexer
+- SQL Parser
+- AST generation
+- Volcano iterator execution engine
+- Sequential scans
+- Index scans
+- Projection
+- Filtering
+- Sorting
+- Hash aggregation
+- Nested loop joins
+
+### Transaction Processing
+
+- Multi-Version Concurrency Control (MVCC)
+- Snapshot Isolation
+- Strict Two-Phase Locking (SS2PL)
+- Transaction lifecycle management
+- Write-Ahead Logging (WAL)
+
+### Buffer Management
+
+- LRU Buffer Pool
+- Fixed-size cache (**10 page frames**)
+- Dirty page flushing
+- Page pinning
+- Disk abstraction
+
+### Storage
+
+- Binary database files
+- Append-only WAL files
+- Slotted page management
+- MVCC tuple version metadata
+
+### Database Management
+
+- Multi-database support
+- Database virtualization
+- Catalog management
+- Schema serialization
+
+### Networking
+
+- Multi-threaded TCP Server
+- Interactive CLI
+- HTTP Monitoring Dashboard
+
+### Monitoring
+
+The HTTP dashboard tracks:
+
+- Total requests
+- Network payload sizes
+- Execution faults
+- Buffer cache hits
+- Rolling execution latency
+
+---
+
+# Architecture Overview
+
+```
+                     Client Applications
+              ┌──────────────┬──────────────┐
+              │              │              │
+              ▼              ▼              ▼
+          CLI Shell      TCP Server    HTTP Dashboard
+                 \          |          /
+                  \         |         /
+                   ▼        ▼        ▼
+              DatabaseClusterManager
+                        │
+                        ▼
+                     DBEngine
+                        │
+                        ▼
+          ┌───────────────────────────┐
+          │       Compiler Layer      │
+          │ Lexer → Parser → AST      │
+          └───────────────────────────┘
+                        │
+                        ▼
+          ┌───────────────────────────┐
+          │     Execution Engine      │
+          │ Volcano Iterator Model    │
+          └───────────────────────────┘
+                        │
+                        ▼
+          ┌───────────────────────────┐
+          │   Concurrency Layer       │
+          │ MVCC + Lock Manager       │
+          └───────────────────────────┘
+                        │
+                        ▼
+          ┌───────────────────────────┐
+          │ Buffer Pool Manager (LRU) │
+          └───────────────────────────┘
+                        │
+                        ▼
+          ┌───────────────────────────┐
+          │     Persistent Storage    │
+          │ Disk Manager + WAL        │
+          └───────────────────────────┘
+```
+
+---
+
+# Project Structure
+
+```text
+ChronosDB
+│
+├── Makefile
+├── main.cpp
+│
+└── src
+    │
+    ├── common
+    │   └── types.h
+    │
+    ├── compiler
+    │   ├── ast.h
+    │   ├── lexer.h
+    │   └── parser.h
+    │
+    ├── concurrency
+    │   ├── lock_manager.h
+    │   ├── lock_manager.cpp
+    │   ├── transaction.h
+    │   └── transaction_manager.h
+    │
+    ├── execution
+    │   ├── catalog.h
+    │   ├── executors.h
+    │   └── engine.h
+    │
+    ├── network
+    │   ├── tcp_server.h
+    │   └── http_dashboard.h
+    │
+    └── storage
+        ├── page.h
+        ├── disk_manager.h
+        ├── disk_manager.cpp
+        ├── buffer_pool_manager.h
+        ├── buffer_pool_manager.cpp
+        └── recovery.h
+```
+
+---
+
 # Architecture Details
 
 ## Network Layer
@@ -574,6 +574,35 @@ Additional extensions can be built on top of the existing architecture, includin
 
 ---
 
+# Technologies Used
+
+## Language
+
+- C++17
+
+## Database Concepts
+
+- Relational Database Systems
+- Slotted Page Storage
+- MVCC
+- Snapshot Isolation
+- Strict Two-Phase Locking
+- Volcano Iterator Model
+- Buffer Pool Management
+- LRU Cache
+- Write-Ahead Logging
+- ARIES Recovery Framework
+
+## Systems
+
+- Multi-threading
+- TCP Networking
+- HTTP Server
+- Binary File Storage
+
+---
+
 # Keywords
 
 **Database Systems • RDBMS • Storage Engine • Database Engine • Systems Programming • C++17 • MVCC • Snapshot Isolation • SS2PL • Volcano Iterator Model • Query Processing • Query Execution Engine • Buffer Pool Manager • LRU Cache • Slotted Pages • Write-Ahead Logging • WAL • Binary Storage • Multi-threading • TCP Networking • HTTP Server • Backend Engineering • Operating Systems • Low-Level Systems • Software Architecture**
+```
