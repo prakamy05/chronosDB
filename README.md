@@ -123,9 +123,8 @@ The dashboard generates an interactive UI rendering current schema matrices, dat
 - **System Fault Telemetry** — Records runtime errors, validation mutation failures, and parsing errors.
 
 ---
-![network telemetry](screenshots/networktelemetry.png)
 <p align="center">
-  <img src="screenshots/networktelemetry.png" alt="network telemetry" height ="500" width="250">
+  <img src="screenshots/networktelemetry.png" alt="network telemetry" height ="400" width="200">
 </p>
 # 💻 Supported SQL Commands
 
@@ -165,7 +164,7 @@ SELECT <fields> FROM <table> COUNT(<target>) GROUP BY <group_column>;
 SELECT <fields> FROM <table> ORDER BY <sort_column> DESC;
 ```
 <p align="center">
-  <img src="screenshots/sqlcommand.png" alt="sql command" height ="400" width="600">
+  <img src="screenshots/sqlcommand.png" alt="sql command" height ="300" width="500">
 </p>
 > **Note:** The query engine reads structural filtering conditions to determine index availability. If a secondary index exists on a matching column, it routes around linear table evaluations, automatically replacing long sequential scans with accelerated `IndexScanExecutor` passes.
 
