@@ -91,7 +91,9 @@ SUCCESS: Table workers created with explicit typed schema layout.
 chronosdb [workspace]> INSERT INTO workers VALUES (7, Active);
 SUCCESS: Row inserted at Page 2 Slot 0
 ```
-![cli interface](screenshots/terminal.png)
+<p align="center">
+  <img src="screenshots/terminal.png" alt="terminal" height ="400" width="600">
+</p>
 ## 2. Multi-Threaded Programmatic TCP Server
 
 ChronosDB registers a background multi-threaded network socket interface bound to:
@@ -109,7 +111,9 @@ The administration web control studio boots an embedded HTTP listener accessible
 ```text
 http://localhost:8080
 ```
-![dashboard](screenshots/dashboard.png)
+<p align="center">
+  <img src="screenshots/dashboard.png" alt="dashboard" height ="400" width=600">
+</p>
 The dashboard generates an interactive UI rendering current schema matrices, data grids, and live engine analytics derived from internal atomic metrics counters:
 
 - **Total Ingress Requests** — Measures global database query processing traffic.
@@ -120,6 +124,9 @@ The dashboard generates an interactive UI rendering current schema matrices, dat
 
 ---
 ![network telemetry](screenshots/networktelemetry.png)
+<p align="center">
+  <img src="screenshots/networktelemetry.png" alt="network telemetry" height ="500" width="250">
+</p>
 # 💻 Supported SQL Commands
 
 ### Database Isolation Commands
@@ -157,8 +164,9 @@ SELECT <fields> FROM <table_1> JOIN <table_2> ON <col_1> = <col_2>;
 SELECT <fields> FROM <table> COUNT(<target>) GROUP BY <group_column>;
 SELECT <fields> FROM <table> ORDER BY <sort_column> DESC;
 ```
-![](screenshots/sqlcommand.png)
-
+<p align="center">
+  <img src="screenshots/sqlcommand.png" alt="sql command" height ="400" width="600">
+</p>
 > **Note:** The query engine reads structural filtering conditions to determine index availability. If a secondary index exists on a matching column, it routes around linear table evaluations, automatically replacing long sequential scans with accelerated `IndexScanExecutor` passes.
 
 ---
