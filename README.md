@@ -1,5 +1,7 @@
 # ChronosDB
-![Logo](screenshots/logo.png)
+<p align="center">
+  <img src="screenshots/logo.png" alt="ChronosDB Logo" height ="200" width="350">
+</p>
 
 > **A transactional, ACID-compliant relational database management system (RDBMS) built from scratch in C++17.**
 >
