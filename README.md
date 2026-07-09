@@ -1,4 +1,5 @@
 # ChronosDB
+![Logo](screenshots/logo.png)
 
 > **A transactional, ACID-compliant relational database management system (RDBMS) built from scratch in C++17.**
 >
@@ -88,7 +89,7 @@ SUCCESS: Table workers created with explicit typed schema layout.
 chronosdb [workspace]> INSERT INTO workers VALUES (7, Active);
 SUCCESS: Row inserted at Page 2 Slot 0
 ```
-
+![cli interface](screenshots/terminal.png)
 ## 2. Multi-Threaded Programmatic TCP Server
 
 ChronosDB registers a background multi-threaded network socket interface bound to:
@@ -106,7 +107,7 @@ The administration web control studio boots an embedded HTTP listener accessible
 ```text
 http://localhost:8080
 ```
-
+![dashboard](screenshots/dashboard.png)
 The dashboard generates an interactive UI rendering current schema matrices, data grids, and live engine analytics derived from internal atomic metrics counters:
 
 - **Total Ingress Requests** — Measures global database query processing traffic.
@@ -116,7 +117,7 @@ The dashboard generates an interactive UI rendering current schema matrices, dat
 - **System Fault Telemetry** — Records runtime errors, validation mutation failures, and parsing errors.
 
 ---
-
+![network telemetry](screenshots/networktelemetry.png)
 # 💻 Supported SQL Commands
 
 ### Database Isolation Commands
@@ -154,6 +155,7 @@ SELECT <fields> FROM <table_1> JOIN <table_2> ON <col_1> = <col_2>;
 SELECT <fields> FROM <table> COUNT(<target>) GROUP BY <group_column>;
 SELECT <fields> FROM <table> ORDER BY <sort_column> DESC;
 ```
+![](screenshots/sqlcommand.png)
 
 > **Note:** The query engine reads structural filtering conditions to determine index availability. If a secondary index exists on a matching column, it routes around linear table evaluations, automatically replacing long sequential scans with accelerated `IndexScanExecutor` passes.
 
